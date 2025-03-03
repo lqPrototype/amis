@@ -69,14 +69,15 @@ export class LazyComponent extends React.Component<
 
     this.props
       .getComponent()
-      .then(
-        component =>
-          this.mounted &&
+      .then(component => {
+        console.log('component:', component);
+
+        this.mounted &&
           typeof component === 'function' &&
           this.setState({
             component: component
-          })
-      )
+          });
+      })
       .catch(
         reason =>
           this.mounted &&
@@ -101,6 +102,10 @@ export class LazyComponent extends React.Component<
     const cx = this.props.classnames;
 
     const {visible, component: Component} = this.state;
+
+    if (rest.defaultVisible) {
+      console.log('Component:', Component);
+    }
 
     // 需要监听从可见到不可见。
     if (unMountOnHidden) {

@@ -671,6 +671,44 @@ echarts 的 config 一般是静态配置的，支持简单的数据映射。如�
 }
 ```
 
+
+## 提前加载
+
+chart 默认渲染在可视范围内加载, 通过`LazyComponent`组件defaultVisible特性。可以做到提前加载`Component`
+> 支持版本: >6.11.0
+
+```schema: scope="body"
+{
+    "type": "chart",
+    "defaultVisible": true,
+    "onEvent": {
+      "finished": {
+          "actions": [
+            {
+                "actionType": "custom",
+                "script": "console.log(event)"
+            }
+          ]
+      }
+    },
+    "config":{
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: 'line'
+        }
+      ]
+    }
+}
+```
+
 ## 属性表
 
 | 属性名             | 类型                                         | 默认值    | 说明                                                                                                                                                                                     |
@@ -692,6 +730,7 @@ echarts 的 config 一般是静态配置的，支持简单的数据映射。如�
 | mapURL             | [api](../../docs/types/api)                  |           | 地图 geo json 地址                                                                                                                                                                       |
 | mapName            | string                                       |           | 地图名称                                                                                                                                                                                 |
 | loadBaiduMap       | boolean                                      |           | 加载百度地图                                                                                                                                                                             |
+| defaultVisible       | boolean                                      |           | chart 默认渲染必须要在可视范围内加载(InView), 当`defaultVisible=true`时候可以绕开`LazyComponent`,控制charts提前加载，支持版本: >6.11.0 |
 
 ## 事件表
 
@@ -705,6 +744,7 @@ echarts 的 config 一般是静态配置的，支持简单的数据映射。如�
 | click               | 查看[ECharst 事件与行为文档](https://echarts.apache.org/handbook/zh/concepts/event/) | 鼠标点击时触发                                      |
 | mouseover           | 查看[ECharst 事件与行为文档](https://echarts.apache.org/handbook/zh/concepts/event/) | 鼠标悬浮时触发                                      |
 | legendselectchanged | 查看[ECharst 事件与行为文档](https://echarts.apache.org/handbook/zh/concepts/event/) | 切换图例选中状态时触发                              |
+| finished | 支持版本: >6.11.0 | echars 渲染完成                              |
 
 ### init
 
@@ -1084,6 +1124,41 @@ echarts 的 config 一般是静态配置的，支持简单的数据映射。如�
         }
     ],
     "animationDuration": 2000
+    }
+}
+```
+
+### finished 
+
+> echars 渲染完成，版本支持： >6.11.0, `event.data.echarts`是echarts的实例， 你可以调用实例的方法，比如转化为Base64 getDataURL。
+
+```schema: scope="body"
+{
+    "type": "chart",
+    "onEvent": {
+      "finished": {
+          "actions": [
+            {
+                "actionType": "custom",
+                "script": "console.log(event)"
+            }
+          ]
+      }
+    },
+    "config":{
+      xAxis: {
+        type: 'category',
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: [150, 230, 224, 218, 135, 147, 260],
+          type: 'line'
+        }
+      ]
     }
 }
 ```

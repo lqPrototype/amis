@@ -157,6 +157,10 @@ export interface ChartSchema extends BaseSchema {
    * 加载百度地图
    */
   loadBaiduMap?: boolean;
+  /**
+   * LazyComponent defaultVisible
+   */
+  defaultVisible?: boolean;
 }
 
 const EVAL_CACHE: {[key: string]: Function} = {};
@@ -619,6 +623,20 @@ export class Chart extends React.Component<ChartProps> {
 
   reloadEcharts(config: any) {
     this.echarts?.setOption(config!, this.props.replaceChartOption);
+    this.echarts?.on('finished', async () => {
+      const {data, dispatchEvent} = this.props;
+
+      const rendererEvent = await dispatchEvent(
+        'finished',
+        createObject(data, {
+          echarts: this.echarts
+        })
+      );
+
+      if (rendererEvent?.prevented) {
+        return;
+      }
+    });
   }
 
   render() {
@@ -633,6 +651,7 @@ export class Chart extends React.Component<ChartProps> {
       wrapperCustomStyle,
       env,
       themeCss,
+      defaultVisible,
       baseControlClassName
     } = this.props;
     let style = this.props.style || {};
@@ -662,10 +681,13 @@ export class Chart extends React.Component<ChartProps> {
       >
         <LazyComponent
           unMountOnHidden={unMountOnHidden}
+          defaultVisible={defaultVisible}
           placeholder="..." // 之前那个 spinner 会导致 sensor 失效
-          component={() => (
-            <div className={`${ns}Chart-content`} ref={this.refFn}></div>
-          )}
+          getComponent={async () => {
+            return () => (
+              <div className={`${ns}Chart-content`} ref={this.refFn}></div>
+            );
+          }}
         />
         <CustomStyle
           {...this.props}
